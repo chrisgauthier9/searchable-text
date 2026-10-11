@@ -1,0 +1,5 @@
+Searchable Text.app/
+dist/
+tools/.venv/
+*.log
+.DS_Store
