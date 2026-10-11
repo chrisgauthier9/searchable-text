@@ -6,6 +6,14 @@ For whoever installs it on a doctor's Mac. Takes about 5 minutes per Mac. The do
 The doctor opens a report PDF from the chart, clicks **Searchable Text** in the Dock, and the report's text is copied, cleaned up and ready to paste into a chart note with **Command-V**. Everything happens on the Mac itself. No patient data is sent anywhere.
 
 ## Install (once per Mac)
+**Easiest (no security warning, adds it to the Dock):** open Terminal (Command-Space, type Terminal, Return), paste this line and press Return:
+
+```
+curl -fsSL https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/install.sh | bash
+```
+
+Then skip to First run. **Or by hand:**
+
 1. Download https://github.com/chrisgauthier9/searchable-text/releases/latest/download/Searchable.Text.dmg and double-click it.
 2. In the window that opens, drag **Searchable Text** onto the **Applications** folder.
 3. Double-click it in Applications. macOS says it cannot verify the app. Click **Done**.
