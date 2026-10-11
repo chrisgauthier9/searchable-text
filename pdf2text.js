@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '1.2.0';
+const VERSION = '1.2.1';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
@@ -462,6 +462,7 @@ const MSG = {
   noAccess:  'Searchable Text needs permission to see the open report.\n\nOpen System Settings > Privacy & Security > Automation, find Searchable Text and switch on your PDF viewer. Then try again. Nothing was copied.',
   noText:    'This report is a scanned image, so there is no text to copy.\n\nNothing was copied.',
   badPdf:    'This report could not be read.\n\nNothing was copied. Please tell whoever set this up.',
+  protected: 'This PDF is in a protected folder (for example, it was opened from Messages or Mail), so Searchable Text cannot open it.\n\nReports opened from the chart work normally. Nothing was copied.',
   unknown:   'Something went wrong. Nothing was copied.\n\nPlease tell whoever set this up.',
 };
 
@@ -478,6 +479,9 @@ function runApp() {
   catch (e) { logError('find-pdf', e); say(isPermissionError(e) ? MSG.noAccess : MSG.unknown, 'stop'); return; }
   if (!path) { say(MSG.noPdf, 'caution'); return; }
 
+  if (!$.NSFileManager.defaultManager.isReadableFileAtPath(path) || !$.NSData.dataWithContentsOfFile(path) || $.NSData.dataWithContentsOfFile(path).isNil()) {
+    say(MSG.protected, 'caution'); return;
+  }
   let text, warnings = [];
   try { ({ text, warnings } = convertChecked(path)); }
   catch (e) { logError('convert', e); say(/Could not open PDF/.test(e.message) ? MSG.badPdf : MSG.unknown, 'stop'); return; }
