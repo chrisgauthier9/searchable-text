@@ -15,5 +15,5 @@ tools/build.sh
 echo "$VERSION" > version.txt
 /usr/bin/openssl dgst -sha256 -sign "$HOME/.config/searchable-text/signing-key.pem" pdf2text.js | /usr/bin/base64 > pdf2text.js.sig
 git add -A && git commit -qm "Release $VERSION" && git push -q origin main
-gh release create "v$VERSION" "dist/Searchable Text.zip" --title "Searchable Text $VERSION" --notes "Install guide: SETUP.md" >/dev/null
+gh release create "v$VERSION" "dist/Searchable Text.dmg" "dist/Searchable Text.zip" --title "Searchable Text $VERSION" --notes "Install guide: SETUP.md" >/dev/null
 echo "Released $VERSION"

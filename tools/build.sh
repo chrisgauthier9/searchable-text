@@ -19,4 +19,6 @@ rm -rf "/Applications/Searchable Text.app"
 cp -R "Searchable Text.app" /Applications/
 mkdir -p dist && rm -f "dist/Searchable Text.zip"
 ditto -c -k --keepParent "Searchable Text.app" "dist/Searchable Text.zip"
+rm -f "dist/Searchable Text.dmg"
+tools/.venv/bin/dmgbuild -s tools/dmg_settings.py -D app="Searchable Text.app" -D icon=tools/applet.icns -D background=tools/dmg-background.png "Searchable Text" "dist/Searchable Text.dmg" >/dev/null
 echo "installed version $VERSION, package in dist/"

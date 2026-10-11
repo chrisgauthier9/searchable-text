@@ -3,7 +3,7 @@
 Mac app that turns a hospital report PDF (opened from Telus PS Suite in Acrobat or Preview) into clean, searchable text on the clipboard, to paste into the chart. Runs entirely on the Mac; no LLM, no network.
 
 - `pdf2text.js` – the whole thing (JavaScript for Automation + PDFKit). Bump `VERSION` on every change.
-- `tools/build.sh` – builds `Searchable Text.app`, installs it in /Applications, writes `dist/Searchable Text.zip`.
+- `tools/build.sh` – builds `Searchable Text.app`, installs it in /Applications, writes `dist/Searchable Text.dmg` (drag-to-Applications installer) and a zip.
 - `tools/release.sh` – ships an update to every Mac (see Updates).
 - `fixtures/` – invented test reports (no real patient data). Never commit a real report.
 - `SETUP.md` – install guide for each doctor's Mac.
