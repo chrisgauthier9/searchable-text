@@ -43,12 +43,21 @@ b { font-weight: 700; }
 .dock span { width: 40px; height: 40px; border-radius: 10px; background: var(--line); }
 .dock img { width: 48px; height: 48px; }
 .drag { justify-items: center; }
+.stack { display: grid; gap: 8px; }
+.wide { text-align: center; padding: 7px 14px; }
 .dragtitle { font-weight: 600; }
 .dragrow { display: flex; align-items: center; gap: 22px; }
 .dragrow img { width: 56px; height: 56px; }
 .arrow { font-size: 34px; color: var(--accent); line-height: 1; }
 .folder { width: 56px; height: 44px; border-radius: 6px; background: #5AA9F5; position: relative; }
 .folder::before { content: ""; position: absolute; top: -7px; left: 4px; width: 22px; height: 9px; border-radius: 4px 4px 0 0; background: #5AA9F5; }
+.cmd { display: flex; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 10px 10px 14px; min-width: 0; }
+.cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 14px/1.4 ui-monospace, Menlo, monospace; color: var(--muted); }
+.small-btn { font-size: 1rem; padding: 10px 20px; border: 0; cursor: pointer; font-family: var(--body); }
+.term { background: #1E1E1E; color: #E6E6E6; font: 14px/1.5 ui-monospace, Menlo, monospace; }
+.alt { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 24px; }
+.alt summary { cursor: pointer; font-weight: 700; }
+.altbody { display: grid; gap: 18px; margin-top: 16px; justify-items: start; }
 .toast { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: center; }
 .toast img { width: 36px; height: 36px; }
 .toast b { display: block; }
@@ -86,10 +95,11 @@ b { font-weight: 700; }
         </div>
       </div></li>
       <li><div>
-        <p>Double-click <b>Searchable Text</b>. Your Mac will say it can't check the app. Click <b>Done</b>.</p>
+        <p>Double-click <b>Searchable Text</b> in Applications. Your Mac warns that Apple could not check it. This is expected for a small in-house app. Click <b>Done</b>, not Move to Trash.</p>
         <div class="shot" aria-hidden="true">
-          <p>"Searchable Text" Not Opened</p>
-          <div class="row"><span></span><span class="macbtn go">Done</span></div>
+          <p><b>"Searchable Text" Not Opened</b></p>
+          <p>Apple could not verify "Searchable Text" is free of malware…</p>
+          <div class="stack"><span class="macbtn go wide">Move to Trash</span><span class="macbtn wide ring">Done</span></div>
         </div>
       </div></li>
       <li><div>
@@ -142,6 +152,7 @@ b { font-weight: 700; }
       <div><b>"This report is a scanned image"</b><span>That report is a picture, so there is no text to copy.</span></div>
       <div><b>Anything else</b><span>Nothing was copied. Let Chris know.</span></div>
     </div>
-    <p class="small">Updates install by themselves. You never need to download it again.</p>
+    <p class="small">Updates install by themselves. You never need to set it up again.</p>
   </section>
 </main>
+

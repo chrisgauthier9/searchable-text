@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
