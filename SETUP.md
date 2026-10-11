@@ -16,9 +16,8 @@ Then skip to First run. **Or by hand:**
 
 1. Download https://github.com/chrisgauthier9/searchable-text/releases/latest/download/Searchable.Text.dmg and double-click it.
 2. In the window that opens, drag **Searchable Text** onto the **Applications** folder.
-3. Double-click it in Applications. macOS says it cannot verify the app. Click **Done**.
-4. Open **System Settings > Privacy & Security** and scroll down. Next to "Searchable Text was blocked", click **Open Anyway**, enter the Mac password, then click **Open**.
-5. Drag **Searchable Text** from Applications onto the Dock.
+3. Double-click it in Applications and click **Open** when macOS asks (the app is signed and notarized by Apple, so there is no security warning).
+4. Drag **Searchable Text** from Applications onto the Dock.
 
 ## First run (once per Mac)
 1. Open any report from the chart so it shows in Acrobat (or Preview).
