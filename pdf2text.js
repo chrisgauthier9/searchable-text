@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '1.2.1';
+const VERSION = '1.2.2';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
@@ -23,6 +23,7 @@ const CFG = {
 function readPages(path) {
   const doc = $.PDFDocument.alloc.initWithURL($.NSURL.fileURLWithPath(path));
   if (!doc || doc.isNil()) throw new Error('Could not open PDF');
+  if (doc.isLocked) throw new Error('PDF is password protected');
   const pages = [];
   for (let p = 0; p < doc.pageCount; p++) {
     const page = doc.pageAtIndex(p);
@@ -30,17 +31,20 @@ function readPages(path) {
     const W = box.size.width, H = box.size.height;
     const s = page.string.js || '';
     const n = s.length;
-    // PDFKit's own text lines (split on newlines) keep each line's characters together.
-    // characterBoundsAtIndex drifts from the string at synthesized newlines; a one-character
-    // selection does not, so positions come from selections.
+    // PDFKit's own text lines (split on newlines) keep each line's words together. Positions come
+    // from one selection per word: characterBoundsAtIndex drifts from the string at synthesized
+    // newlines, and one selection per character is slow on long reports.
     const lines = [];
-    let cur = [];
-    for (let i = 0; i <= n; i++) {
-      const c = i < n ? s[i] : '\n';
-      if (c === '\n' || c === '\r' || c === undefined) { if (cur.length) lines.push(cur); cur = []; continue; }
-      const r = page.selectionForRange($.NSMakeRange(i, 1)).boundsForPage(page);
-      cur.push({ c, x0: r.origin.x, x1: r.origin.x + r.size.width,
-                 top: H - (r.origin.y + r.size.height), bot: H - r.origin.y });
+    for (const m of s.matchAll(/[^\n\r]+/g)) {
+      const line = [];
+      for (const w of m[0].matchAll(/\S+/g)) {
+        const r = page.selectionForRange($.NSMakeRange(m.index + w.index, w[0].length)).boundsForPage(page);
+        const prev = line[line.length - 1];
+        if (prev) line.push({ c: ' ', x0: prev.x1, x1: prev.x1, top: prev.top, bot: prev.bot });
+        line.push({ c: w[0], x0: r.origin.x, x1: r.origin.x + r.size.width,
+                    top: H - (r.origin.y + r.size.height), bot: H - r.origin.y });
+      }
+      if (line.length) lines.push(line);
     }
     pages.push({ W, H, rows: buildRows(lines.flatMap(splitByBaseline)), rawInk: s.replace(/\s/g, '').length });
   }
@@ -461,6 +465,7 @@ const MSG = {
   noPdf:     'No report is open.\n\nOpen the report from the chart first, then click Searchable Text again.',
   noAccess:  'Searchable Text needs permission to see the open report.\n\nOpen System Settings > Privacy & Security > Automation, find Searchable Text and switch on your PDF viewer. Then try again. Nothing was copied.',
   noText:    'This report is a scanned image, so there is no text to copy.\n\nNothing was copied.',
+  locked:    'This PDF is password protected, so its text cannot be copied.\n\nNothing was copied.',
   badPdf:    'This report could not be read.\n\nNothing was copied. Please tell whoever set this up.',
   protected: 'This PDF is in a protected folder (for example, it was opened from Messages or Mail), so Searchable Text cannot open it.\n\nReports opened from the chart work normally. Nothing was copied.',
   unknown:   'Something went wrong. Nothing was copied.\n\nPlease tell whoever set this up.',
@@ -484,7 +489,7 @@ function runApp() {
   }
   let text, warnings = [];
   try { ({ text, warnings } = convertChecked(path)); }
-  catch (e) { logError('convert', e); say(/Could not open PDF/.test(e.message) ? MSG.badPdf : MSG.unknown, 'stop'); return; }
+  catch (e) { logError('convert', e); say(/password/.test(e.message) ? MSG.locked : /Could not open PDF/.test(e.message) ? MSG.badPdf : MSG.unknown, 'stop'); return; }
   if (!text.trim()) { say(MSG.noText, 'caution'); return; }
 
   try { me.setTheClipboardTo(text); }
