@@ -81,6 +81,8 @@ b { font-weight: 700; }
 .help b { color: var(--ink); }
 .help span { color: var(--muted); }
 @media (max-width: 480px) { h1 { font-size: 1.7rem; } .hero img { width: 64px; height: 64px; } }
+.menubar { display: flex; gap: 18px; align-items: center; justify-content: flex-end; background: #1D3A5C; color: #fff; border-radius: 8px; padding: 6px 14px; font: 14px -apple-system, sans-serif; max-width: 420px; }
+.menubar .ring { display: grid; place-items: center; border-radius: 4px; }
 .lang { justify-self: end; display: flex; gap: 6px; }
 .lang button { font: 700 0.9rem var(--body); background: var(--card); color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
 .lang button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
@@ -111,8 +113,9 @@ html[lang="en"] main[lang="fr"], html[lang="fr"] main[lang="en"] { display: none
         <div class="shot" aria-hidden="true"><p>"Searchable Text" is an app downloaded from the Internet. Are you sure you want to open it?</p>
           <div class="row"><span class="macbtn">Cancel</span><span class="macbtn go ring">Open</span></div></div>
       </div></li>
-      <li><div><p>Drag <b>Searchable Text</b> from Applications down to your <b>Dock</b>, so it is always one click away.</p>
-        <div class="dock" aria-hidden="true"><span></span><span></span><img src="icon.png" alt=""><span></span></div>
+      <li><div><p>A small clipboard icon appears at the top right of your screen, next to the clock. That is Searchable Text. It starts by itself every time your Mac turns on.</p>
+        <div class="menubar" aria-hidden="true"><span class="ring"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="4" width="13" height="17" rx="2"/><rect x="8.5" y="2.5" width="6" height="3" rx="1"/><path d="M8.5 11h6M8.5 14.5h6"/></svg></span><span>Wi-Fi</span><span>Tue 5:14 PM</span></div>
+        <p class="small">Had the older version in your Dock? Drag that old icon out of the Dock. If you do not see the clipboard icon, open System Settings > Menu Bar and switch on Searchable Text.</p>
       </div></li>
     </ol>
   </section>
@@ -120,7 +123,7 @@ html[lang="en"] main[lang="fr"], html[lang="fr"] main[lang="en"] { display: none
     <p class="when">The first time you use it</p>
     <h2>Say yes twice</h2>
     <ol>
-      <li><div><p>Open any report from the chart, then click the <b>Searchable Text</b> icon.</p></div></li>
+      <li><div><p>Open any report from the chart, then click the clipboard icon at the top of your screen.</p></div></li>
       <li><div><p>Your Mac asks if Searchable Text may use <b>Adobe Acrobat</b>. Click <b>Allow</b>.</p>
         <div class="shot" aria-hidden="true"><p>"Searchable Text" wants access to control "Adobe Acrobat".</p>
           <div class="row"><span class="macbtn">Don't Allow</span><span class="macbtn go ring">Allow</span></div></div>
@@ -133,7 +136,7 @@ html[lang="en"] main[lang="fr"], html[lang="fr"] main[lang="en"] { display: none
     <h2>Open, click, paste</h2>
     <ol>
       <li><div><p>Open the report from the chart.</p></div></li>
-      <li><div><p>Click <b>Searchable Text</b> in the Dock. A note appears in the corner.</p>
+      <li><div><p>Click the clipboard icon at the top of your screen. A note appears in the corner.</p>
         <div class="shot toast" aria-hidden="true"><img src="icon.png" alt=""><div><b>Report text copied</b>Click in the chart note and press Command-V.</div></div>
       </div></li>
       <li><div><p>Click in the chart note and press <b>Command-V</b> (⌘V).</p></div></li>
@@ -172,8 +175,9 @@ html[lang="en"] main[lang="fr"], html[lang="fr"] main[lang="en"] { display: none
         <div class="shot" aria-hidden="true"><p>« Searchable Text » est une app téléchargée depuis Internet. Voulez-vous vraiment l'ouvrir?</p>
           <div class="row"><span class="macbtn">Annuler</span><span class="macbtn go ring">Ouvrir</span></div></div>
       </div></li>
-      <li><div><p>Glissez <b>Searchable Text</b> depuis Applications jusque dans votre <b>Dock</b>, pour l'avoir toujours à un clic.</p>
-        <div class="dock" aria-hidden="true"><span></span><span></span><img src="icon.png" alt=""><span></span></div>
+      <li><div><p>Une petite icône de presse-papiers apparaît en haut à droite de l'écran, près de l'heure. C'est Searchable Text. Elle se lance toute seule à chaque démarrage du Mac.</p>
+        <div class="menubar" aria-hidden="true"><span class="ring"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="4" width="13" height="17" rx="2"/><rect x="8.5" y="2.5" width="6" height="3" rx="1"/><path d="M8.5 11h6M8.5 14.5h6"/></svg></span><span>Wi-Fi</span><span>Tue 5:14 PM</span></div>
+        <p class="small">Vous aviez l'ancienne version dans le Dock? Glissez cette ancienne icône hors du Dock. Si vous ne voyez pas l'icône de presse-papiers, ouvrez Réglages Système > Barre des menus et activez Searchable Text.</p>
       </div></li>
     </ol>
   </section>
@@ -181,7 +185,7 @@ html[lang="en"] main[lang="fr"], html[lang="fr"] main[lang="en"] { display: none
     <p class="when">La première fois</p>
     <h2>Dites oui deux fois</h2>
     <ol>
-      <li><div><p>Ouvrez n'importe quel rapport depuis le dossier, puis cliquez sur l'icône <b>Searchable Text</b>.</p></div></li>
+      <li><div><p>Ouvrez n'importe quel rapport depuis le dossier, puis cliquez sur l'icône de presse-papiers en haut de l'écran.</p></div></li>
       <li><div><p>Votre Mac demande si Searchable Text peut utiliser <b>Adobe Acrobat</b>. Cliquez sur <b>Autoriser</b>.</p>
         <div class="shot" aria-hidden="true"><p>« Searchable Text » souhaite obtenir l'accès pour contrôler « Adobe Acrobat ».</p>
           <div class="row"><span class="macbtn">Refuser</span><span class="macbtn go ring">Autoriser</span></div></div>
@@ -194,7 +198,7 @@ html[lang="en"] main[lang="fr"], html[lang="fr"] main[lang="en"] { display: none
     <h2>Ouvrir, cliquer, coller</h2>
     <ol>
       <li><div><p>Ouvrez le rapport depuis le dossier.</p></div></li>
-      <li><div><p>Cliquez sur <b>Searchable Text</b> dans le Dock. Une note apparaît dans le coin.</p>
+      <li><div><p>Cliquez sur l'icône de presse-papiers en haut de l'écran. Une note apparaît dans le coin.</p>
         <div class="shot toast" aria-hidden="true"><img src="icon.png" alt=""><div><b>Report text copied</b>Click in the chart note and press Command-V.</div></div>
       </div></li>
       <li><div><p>Cliquez dans la note du dossier et appuyez sur <b>Commande-V</b> (⌘V).</p></div></li>

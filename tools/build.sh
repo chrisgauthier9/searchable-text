@@ -13,10 +13,11 @@ BUILD="$(mktemp -d /tmp/searchable-text-build.XXXX)"
 trap 'rm -rf "$BUILD"' EXIT
 APP="$BUILD/Searchable Text.app"
 rm -rf "$ROOT/Searchable Text.app"
-osacompile -l JavaScript -o "$APP" pdf2text.js
+osacompile -s -l JavaScript -o "$APP" pdf2text.js
 P="$APP/Contents/Info.plist"
 plutil -replace NSAppleEventsUsageDescription -string "Searchable Text reads the report that is open in your PDF viewer so it can copy its text." "$P"
 plutil -replace CFBundleIdentifier -string "ca.searchabletext.app" "$P"
+plutil -replace LSUIElement -bool true "$P"
 plutil -replace CFBundleShortVersionString -string "$VERSION" "$P"
 plutil -replace CFBundleVersion -string "$VERSION" "$P"
 cp tools/applet.icns "$APP/Contents/Resources/applet.icns"

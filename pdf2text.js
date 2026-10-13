@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '1.2.2';
+const VERSION = '2.0.0';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
@@ -444,7 +444,7 @@ function acrobatFront(app) {
 // Three ways in:
 //   osascript -l JavaScript pdf2text.js file.pdf   -> prints the text (testing)
 //   osascript -l JavaScript pdf2text.js --front    -> same, for the PDF open on screen (testing)
-//   Dock app (no arguments)                        -> copies the text and says "paste it"
+//   Menu bar app (no arguments)                    -> an icon in the menu bar; a click copies the text
 function run(argv) {
   // A double-clicked app is handed a launch object, not a path; keep only real paths.
   let args = (Array.isArray(argv) ? argv : [argv]).filter(Boolean).map(a => {
@@ -455,10 +455,41 @@ function run(argv) {
     if (args[0] === '--check') return args.slice(1).map(a => a + ': ' + (convertChecked(a).warnings.join('; ') || 'ok')).join('\n');
     return args.length ? args.map(convert).join('\n\n') : 'No PDF found.';
   }
-  bootstrap();
+  try { startMenuBar(); } catch (e) { logError('menu-bar', e); }
 }
 
-// The Dock app. Success is a quiet notification; a failure is a plain-language box, never a raw error.
+// The app lives in the menu bar (no Dock icon) and starts with the Mac. One click on the icon
+// copies the open report. Kept outside the updatable part: updates replace what a click does,
+// not the icon itself, so this only changes with a reinstall.
+function startMenuBar() {
+  ObjC.import('Cocoa');
+  ObjC.registerSubclass({
+    name: 'SearchableTextClick',
+    methods: { 'clicked:': { types: ['void', ['id']], implementation: function () { bootstrap(); } } },
+  });
+  const item = $.NSStatusBar.systemStatusBar.statusItemWithLength(-1);
+  const img = $.NSImage.imageWithSystemSymbolNameAccessibilityDescription('doc.on.clipboard', 'Searchable Text');
+  img.setTemplate(true);
+  item.button.setImage(img);
+  item.button.setToolTip($('Searchable Text: copy the open report (version ' + VERSION + ')'));
+  const target = $.SearchableTextClick.alloc.init;
+  item.button.setTarget(target);
+  item.button.setAction('clicked:');
+  globalThis.searchableText = { item, target };   // keep both alive for the life of the app
+  startAtLogin();
+}
+
+// Register as a login item once, so the icon is back after every restart. macOS shows its own
+// "added to Login Items" notice the first time.
+function startAtLogin() {
+  try {
+    ObjC.import('ServiceManagement');
+    const svc = $.SMAppService.mainAppService;
+    if (svc.status !== 1) svc.registerAndReturnError(null);
+  } catch (e) { logError('login-item', e); }
+}
+
+// One click. Success is a quiet notification; a failure is a plain-language box, never a raw error.
 // The clipboard is emptied first, so a failed run can never paste the previous patient's report.
 const MSG = {
   done:      'Done. The text is copied.\n\nClick in the chart note and press Command-V to paste.',
@@ -475,6 +506,7 @@ function runApp() {
   const me = Application.currentApplication();
   me.includeStandardAdditions = true;
   const say = (msg, icon) => {
+    try { me.activate(); } catch (e) {}
     try { me.displayDialog(msg, { buttons: ['OK'], defaultButton: 'OK', withTitle: 'Searchable Text', withIcon: icon || 'note', givingUpAfter: icon === 'stop' ? 30 : 8 }); } catch (e) {}
   };
   try { me.setTheClipboardTo(''); } catch (e) {}
