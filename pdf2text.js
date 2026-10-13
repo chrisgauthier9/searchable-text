@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '2.0.0';
+const VERSION = '2.0.1';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
@@ -376,7 +376,9 @@ function convertChecked(path) {
       const before = pg.rows.slice(0, run.start), inside = pg.rows.slice(run.start, run.end), after = pg.rows.slice(run.end);
       (p === 0 ? head : left).push(...before.map(shift));
       for (const r of inside) {
-        const L = r.segs.filter(s => s.x1 <= g), R = r.segs.filter(s => s.x0 >= g);
+        // A cell may overlap the gutter by up to 2 points (that is not a crossing), so every cell
+        // goes to the side its middle is on. Testing x1 <= g / x0 >= g dropped such cells entirely.
+        const L = r.segs.filter(s => s.x0 + s.x1 < 2 * g), R = r.segs.filter(s => s.x0 + s.x1 >= 2 * g);
         if (L.length) left.push(shift({ ...r, segs: L }));
         if (R.length) rightCol.push(shift({ ...r, segs: R }));
       }
