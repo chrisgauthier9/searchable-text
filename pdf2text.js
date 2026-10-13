@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '2.0.1';
+const VERSION = '2.0.2';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
@@ -46,7 +46,7 @@ function readPages(path) {
       }
       if (line.length) lines.push(line);
     }
-    pages.push({ W, H, rows: buildRows(lines.flatMap(splitByBaseline)), rawInk: s.replace(/\s/g, '').length });
+    pages.push({ W, H, rows: buildRows(lines.flatMap(splitByBaseline)), raw: s, rawInk: s.replace(/\s/g, '').length });
   }
   return pages;
 }
@@ -356,11 +356,34 @@ function convertChecked(path) {
   const pages = readPages(path);
   const warnings = [];
   dropRepeatedHeaders(pages);
+  const expected = pages.reduce((n, pg) => n + pg.rawInk - pg.droppedInk, 0);
+  const balances = t => t.split(' | ').join('').replace(/\s/g, '').length === expected;
+  const layouts = documentLayout(pages);
+
+  // Safety net: missing text is worse than text in the wrong order. If the column reading loses
+  // or adds anything, read the page top to bottom instead, and as a last resort copy PDFKit's own
+  // text, which has every character. Each fallback still copies, with a "please check it" warning.
+  let text = assemble(pages, layouts);
+  if (!balances(text) && layouts.some(Boolean)) {
+    const flat = assemble(pages, pages.map(() => null));
+    if (balances(flat)) { text = flat; warnings.push('the columns could not be split cleanly'); }
+  }
+  if (!balances(text)) {
+    text = pages.map(pg => pg.raw).join('\n\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+    warnings.push('some text may be missing from the layout, so the plain text was copied');
+  }
+
+  const hasText = pages.some(pg => pg.rawInk > 20);
+  const scanned = pages.map((pg, i) => (hasText && pg.rawInk <= 20 ? i + 1 : 0)).filter(Boolean);
+  if (scanned.length) warnings.push(`page ${scanned.join(', ')} has no text (scanned)`);
+  if (pages.some(pg => pg.suspect)) warnings.push('the layout looks like more than two columns');
+  return { text, warnings };
+}
+
+function assemble(pages, layouts) {
   const head = [], left = [], rightCol = [], tail = [];
   const streams = [];               // [{rows}] in reading order when there are no columns
-  let anyCols = false;
-  const layouts = documentLayout(pages);
-  anyCols = layouts.some(Boolean);
+  const anyCols = layouts.some(Boolean);
 
   const pageHead = pages[0].headRows, pageFoot = pages[0].footRows;
   if (!anyCols) {
@@ -399,16 +422,7 @@ function convertChecked(path) {
   blocks.push(signature);
 
   const joined = blocks.map(b => b.join('\n').replace(/^\n+|\n+$/g, '')).filter(Boolean).join('\n\n');
-  const text = joined.replace(/[ \t]+/g, ' ').replace(/ +\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
-
-  const hasText = pages.some(pg => pg.rawInk > 20);
-  const scanned = pages.map((pg, i) => (hasText && pg.rawInk <= 20 ? i + 1 : 0)).filter(Boolean);
-  if (scanned.length) warnings.push(`page ${scanned.join(', ')} has no text (scanned)`);
-  if (pages.some(pg => pg.suspect)) warnings.push('the layout looks like more than two columns');
-  const expected = pages.reduce((n, pg) => n + pg.rawInk - pg.droppedInk, 0);
-  const actual = text.split(' | ').join('').replace(/\s/g, '').length;
-  if (actual !== expected) warnings.push('some text may be missing');
-  return { text, warnings };
+  return joined.replace(/[ \t]+/g, ' ').replace(/ +\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
 
 // With no file given (the Dock app), ask the PDF viewer which report is open in its front window.

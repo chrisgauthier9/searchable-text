@@ -11,6 +11,11 @@ for f in fixtures/fake_two_column.pdf fixtures/fake_one_column.pdf; do
   r=$(osascript -l JavaScript pdf2text.js --check "$PWD/$f"); [[ "$r" == *": ok" ]] || { echo "Check failed: $r"; exit 1; }
 done
 [[ "$(osascript -l JavaScript pdf2text.js --check "$PWD/fixtures/fake_three_column.pdf")" == *"more than two columns"* ]] || { echo "3-column warning missing"; exit 1; }
+# The safety net must catch lost text: break the column split on purpose and expect the fallback.
+bug=$(mktemp -t searchable-bug).js
+sed 's|R = r.segs.filter(s => s.x0 + s.x1 >= 2 \* g);|R = r.segs.filter(s => s.x0 + s.x1 >= 2 * g).slice(1);|' pdf2text.js > "$bug"
+[[ "$(osascript -l JavaScript "$bug" --check "$PWD/fixtures/fake_two_column.pdf")" == *"could not be split cleanly"* ]] || { echo "Safety net did not fire"; exit 1; }
+rm -f "$bug"
 NOTARIZE=1 tools/build.sh
 echo "$VERSION" > version.txt
 /usr/bin/openssl dgst -sha256 -sign "$HOME/.config/searchable-text/signing-key.pem" pdf2text.js | /usr/bin/base64 > pdf2text.js.sig
