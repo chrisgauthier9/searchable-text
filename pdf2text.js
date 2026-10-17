@@ -7,7 +7,7 @@
 
 ObjC.import('PDFKit');
 
-const VERSION = '2.0.2';
+const VERSION = '2.0.3';
 const UPDATE_URL = 'https://raw.githubusercontent.com/chrisgauthier9/searchable-text/main/';
 
 const CFG = {
@@ -363,9 +363,9 @@ function convertChecked(path) {
   // Safety net: missing text is worse than text in the wrong order. If the column reading loses
   // or adds anything, read the page top to bottom instead, and as a last resort copy PDFKit's own
   // text, which has every character. Each fallback still copies, with a "please check it" warning.
-  let text = assemble(pages, layouts);
+  let text = medicationRows(assemble(pages, layouts));
   if (!balances(text) && layouts.some(Boolean)) {
-    const flat = assemble(pages, pages.map(() => null));
+    const flat = medicationRows(assemble(pages, pages.map(() => null)));
     if (balances(flat)) { text = flat; warnings.push('the columns could not be split cleanly'); }
   }
   if (!balances(text)) {
@@ -378,6 +378,31 @@ function convertChecked(path) {
   if (scanned.length) warnings.push(`page ${scanned.join(', ')} has no text (scanned)`);
   if (pages.some(pg => pg.suspect)) warnings.push('the layout looks like more than two columns');
   return { text, warnings };
+}
+
+// Medication lists printed as a "Medication / Instructions" table come out with each drug's name
+// on one line (a bullet) and its dose on the next. Put each medication on one row: name | dose.
+// Only inside a list that starts with that header; only one dose line per bullet; a blank line or
+// a second non-bullet line ends the list. Words are never changed, only line breaks.
+function medicationRows(text) {
+  const lines = text.split('\n'), out = [];
+  const bullet = l => /^[•▪●○*-]\s/.test(l.trim());
+  for (let i = 0; i < lines.length; i++) {
+    if (/^medications?$/i.test(lines[i].trim()) && /^instructions$/i.test((lines[i + 1] || '').trim()) && bullet(lines[i + 2] || '')) {
+      out.push(lines[i].trim() + ' | ' + lines[i + 1].trim());
+      i += 2;
+      while (i < lines.length && bullet(lines[i])) {
+        const next = lines[i + 1];
+        if (next !== undefined && next.trim() && !bullet(next) && (bullet(lines[i + 2] || '') || !(lines[i + 2] || '').trim())) {
+          out.push(lines[i] + ' | ' + next.trim()); i += 2;
+        } else { out.push(lines[i]); i += 1; }
+      }
+      i -= 1;
+      continue;
+    }
+    out.push(lines[i]);
+  }
+  return out.join('\n');
 }
 
 function assemble(pages, layouts) {
